@@ -54,9 +54,18 @@ app.delete("/orders/:id", (request, response) => {
   const indexOfOrderToDelete = orders.findIndex((order) => order.id === id)
   orders.splice(indexOfOrderToDelete, 1)
 
-  console.log(orders)
-
   return response.status(201).json({ message: "Pedido deletado." })
+})
+
+app.patch("/orders/:id", (request, response) => {
+  const { id } = request.params
+
+  const indexOfOrderToUpdateStatus = orders.findIndex(
+    (order) => order.id === id
+  )
+  orders[indexOfOrderToUpdateStatus].status = "Pronto"
+
+  return response.status(201).json(orders[indexOfOrderToCompleteStatus])
 })
 
 app.listen(port, () => {
