@@ -19,17 +19,46 @@ app.use(express.json())
 
 */
 
+// route: Route {
+//     path: '/orders/:id',
+//     stack: [ [Layer], [Layer] ],
+//     methods: { get: true }
+//   },
+
 const orders = []
+
+const showMethodAndPath = (request, response, next) => {
+  const { method, path } = request
+
+  console.log(`Request Method: ${method}`)
+  console.log(`URL: ${path}`)
+
+  next()
+}
+
+app.use(showMethodAndPath)
+
+const checkOrderId = (request, response, next) => {
+  const { id } = request.params
+
+  const indexOfOrderToCheck = orders.findIndex((order) => order.id === id)
+  if (indexOfOrderToCheck < 0) {
+    return response.json({ error: "Order not found." })
+  }
+
+  request.orderIndex = indexOfOrderToCheck
+
+  next()
+}
 
 app.get("/orders", (request, response) => {
   return response.json(orders)
 })
 
-app.get("/orders/:id", (request, response) => {
-  const { id } = request.params
+app.get("/orders/:id", checkOrderId, (request, response) => {
+  const index = request.orderIndex
 
-  const indexOfRequestedOrder = orders.findIndex((order) => order.id === id)
-  return response.json(orders[indexOfRequestedOrder])
+  return response.json(orders[index])
 })
 
 app.post("/orders", (request, response) => {
@@ -48,24 +77,19 @@ app.post("/orders", (request, response) => {
   return response.status(201).json(newOrder)
 })
 
-app.delete("/orders/:id", (request, response) => {
-  const { id } = request.params
+app.delete("/orders/:id", checkOrderId, (request, response) => {
+  const index = request.orderIndex
 
-  const indexOfOrderToDelete = orders.findIndex((order) => order.id === id)
-  orders.splice(indexOfOrderToDelete, 1)
+  orders.splice(index, 1)
 
   return response.status(201).json({ message: "Pedido deletado." })
 })
 
-app.patch("/orders/:id", (request, response) => {
-  const { id } = request.params
+app.patch("/orders/:id", checkOrderId, (request, response) => {
+  const index = request.orderIndex
+  orders[index].status = "Pronto"
 
-  const indexOfOrderToUpdateStatus = orders.findIndex(
-    (order) => order.id === id
-  )
-  orders[indexOfOrderToUpdateStatus].status = "Pronto"
-
-  return response.status(201).json(orders[indexOfOrderToCompleteStatus])
+  return response.status(201).json(orders[index])
 })
 
 app.listen(port, () => {
