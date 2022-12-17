@@ -41,6 +41,17 @@ app.post("/orders", (request, response) => {
   return response.status(201).json(newOrder)
 })
 
+app.delete("/orders/:id", (request, response) => {
+  const { id } = request.params
+
+  const indexOfOrderToDelete = orders.findIndex((order) => order.id === id)
+  orders.splice(indexOfOrderToDelete, 1)
+
+  console.log(orders)
+
+  return response.status(201).json({ message: "Pedido deletado." })
+})
+
 app.listen(port, () => {
   console.log(`🚀 Server started on port ${port}.`)
 })
