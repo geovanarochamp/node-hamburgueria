@@ -1,4 +1,5 @@
 const express = require("express")
+const uuid = require("uuid")
 
 const port = 3000
 const app = express()
@@ -22,6 +23,22 @@ const orders = []
 
 app.get("/orders", (request, response) => {
   return response.json(orders)
+})
+
+app.post("/orders", (request, response) => {
+  const { order, clientName, price } = request.body
+
+  const newOrder = {
+    id: uuid.v4(),
+    order,
+    clientName,
+    price,
+    status: "Em preparação",
+  }
+
+  orders.push(newOrder)
+
+  return response.status(201).json(newOrder)
 })
 
 app.listen(port, () => {
